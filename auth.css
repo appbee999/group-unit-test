@@ -1,0 +1,25 @@
+body {
+  font: 16px sans-serif;
+}
+
+.content {
+  width: 40%;
+  padding-bottom: 48px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+h1{
+  margin-bottom: 1em;
+}
+
+.formGroup{
+  margin-bottom: 1em;
+}
+
+.formGroup label{
+  margin-bottom: 0.5em;
+}

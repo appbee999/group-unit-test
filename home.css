@@ -1,0 +1,54 @@
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    height: 6vh;
+    background-color: rgb(0, 95, 196);
+}
+
+.title {
+    margin: 1.5vh 0 0 5vh;
+    color: white;
+    font-weight: bold;
+    float: left;
+}
+
+.links {
+    margin: 1.65vh 5vh 0 0;
+    float: right;
+    flex-direction: row;
+}
+
+.links a {
+    color: white;
+    font-weight: medium;
+    font-size: 1.5em;
+    text-decoration: none;
+    margin: 0 1vh;
+}
+
+.links a:hover {
+    color: white;
+}
+
+body {
+    background-color: #e8e8e8;
+}
+
+body .spacer {
+    height: 1vh;
+}
+
+.content {
+    margin-top: 3vh;
+}
+
+.content h2 {
+    margin: 0vh 5vh;
+}

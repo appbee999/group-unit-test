@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Execute read statement
             if ($readStmt->execute()) {
-                // If email and password is the same as the one in databse, start a session
+                // If email and password is the same as the one in database, start a session
                 if ($readStmt->rowCount() == 1) {
                     if ($row = $readStmt->fetch()) {
                         $id = $row["id"];

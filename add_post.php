@@ -27,12 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $currentDir = realpath(dirname(__FILE__));
         $image = $_FILES["postImage"];
         $fileName = $image["name"];
-        $tempPath =  $currentDir . $fileName;
+        $tempPath =  $currentDir . "\images\\" . baseName($fileName);
         $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
 
         // Check if uploaded file is an image
-        $allowTypes = array('jpg','png','jpeg');
-        if(!in_array($fileType, $allowTypes)){
+        $allowTypes = array('jpg', 'png', 'jpeg');
+        if (!in_array($fileType, $allowTypes)) {
             $postImage_err = "Only .jpg, .jpeg, and .png is allowed.";
         }
 
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $insertStmt->bindParam(":postImg", $param_postImage, PDO::PARAM_STR);
 
             $param_postedBy = $_SESSION["id"];
-            $param_postUser =  $_SESSION["firstName"] . $_SESSION["lastName"];
+            $param_postUser =  $_SESSION["firstName"] . " " . $_SESSION["lastName"];
             $param_postTitle = $postTitle;
             $param_postMessage = $postMessage;
             $param_postImage = $fileName;

@@ -55,7 +55,14 @@ if ($readStmt->execute()) {
             <a href="inbox.php">Inbox</a>
             <a href="chat.php">Chat</a>
             <a href="settings.php">Settings</a>
-            <a href="logout.php">Logout</a>
+            <a href="logout.php" onclick="confirmLogout()">Logout</a>
+            <script>
+                function confirmLogout() {
+                    if (confirm("Confirm Logout")) {
+                        location.href = "logout.php"
+                    }
+                }
+            </script>
         </div>
     </header>
 </head>
@@ -67,15 +74,25 @@ if ($readStmt->execute()) {
         <div class="spacer"></div>
         <h2>Here are the recent posts made by other Xaverians</h2>
         <div class="spacer"></div>
+        <?php
+        foreach ($result as $post) {
+            echo $post["postUser"];
 
+            echo "<h2>" . $post["postTitle"] .  "</h2>";
+            echo "<h3>" . $post["postMsg"] .  "</h3>";
+            echo "";
+            echo '<img src="images/' . $post["postImg"] .  '">';
+        }
+        ?>
     </div>
+
 
     <a class="btn btn-primary p-3 rounded-circle btn-l shadow-md postButton" type="button" href="add_post.php">
         <span class="material-symbols-outlined">
             add
         </span>
     </a>
- 
+
 </body>
 
 </html>

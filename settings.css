@@ -7,6 +7,10 @@ body {
     padding: 0;
 }
 
+body .spacer {
+    height: 1vh;
+}
+
 header {
     height: 6vh;
     background-color: rgb(0, 95, 196);

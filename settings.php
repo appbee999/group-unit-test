@@ -9,6 +9,148 @@ if (!$_SESSION["isSignedIn"]) {
 
 require_once "connect.php";
 
+$dbUsername = $dbEmail = $dbProfilePic = "";
+$email = $currentPassword = $newPassword = "";
+$email_err = $current_password_err = $new_password_err = $profile_pic_err = "";
+
+// Prepare read statement
+if ($readStmt = $pdo->prepare("SELECT * FROM tblusers WHERE id = :id")) {
+    // Bind parameters to prevent sql injection
+    $readStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+    $param_id = $_SESSION["id"];
+    // Execute read statement
+    if ($readStmt->execute()) {
+        // If email and password is the same as the one in databse, start a session
+        if ($readStmt->rowCount() == 1) {
+            $row = $readStmt->fetch();
+            $dbUsername = $row["firstName"] . " " . $row["lastName"];
+            $dbEmail = $row["email"];
+            $dbProfilePic = $row["profilePic"];
+        }
+    }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (empty($_POST["postImage"])) {
+        // Validate email
+        $email = trim($_POST["email"]);
+        if (!empty($email) && !preg_match('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', $email)) {
+            $email_err = "Please enter a valid email";
+        }
+
+        // Validate current password
+        $currentPassword = trim($_POST["currentPassword"]);
+        if (!empty($currentPassword) && strlen($currentPassword) < 8) {
+            $current_password_err = "Password must have at least 8 characters.";
+        }
+
+        // Validate new password
+        $newPassword = trim($_POST["newPassword"]);
+        if (!empty($currentPassword) && empty($newPassword)) {
+            $new_password_err = "Type your new password.";
+        } elseif (!empty($newPassword) && strlen($newPassword) < 8) {
+            $new_password_err = "Password must have at least 8 characters.";
+        }
+
+        // If user wants to update email, make sure that the same email doesn't already exist in the database
+        if (!empty($email) && empty($email_err)) {
+            // Prepare read statement
+            if ($readStmt = $pdo->prepare("SELECT * FROM tblusers WHERE email = :email")) {
+                // Bind parameters to prevent sql injection
+                $readStmt->bindParam(":email", $param_email, PDO::PARAM_STR);
+                $param_email = $email;
+
+                // Execute read statement
+                if ($readStmt->execute()) {
+                    // If email and password is the same as the one in databse, start a session
+                    if ($readStmt->rowCount() < 1) {
+                        if ($updateStmt = $pdo->prepare("UPDATE tblusers SET email = :email WHERE id = :id")) {
+                            // Bind parameters to prevent sql injection
+                            $updateStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+                            $updateStmt->bindParam(":email", $param_email, PDO::PARAM_STR);
+                            $param_id = $_SESSION["id"];
+                            $param_email = $email;
+
+                            if ($updateStmt->execute()) {
+                                $dbEmail = $email;
+                            }
+                        }
+                        // Unset update statement
+                        unset($updateStmt);
+                    }
+                }
+            }
+            // Unset read statement
+            unset($readStmt);
+        }
+
+        // Check if current password is correct
+        if (!empty($currentPassword) && !empty($newPassword) && empty($current_password_err) && empty($new_password_err)) {
+            // Prepare read statement
+            if ($readStmt = $pdo->prepare("SELECT * FROM tblusers WHERE id = :id AND password = :password")) {
+                // Bind parameters to prevent sql injection
+                $readStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+                $readStmt->bindParam(":password", $param_password, PDO::PARAM_STR);
+                $param_id = $_SESSION["id"];
+                $param_password = hash('sha256', $currentPassword);
+
+                // Execute read statement
+                if ($readStmt->execute()) {
+                    // If email and password is the same as the one in database, update password
+                    if ($readStmt->rowCount() == 1) {
+                        if ($updateStmt = $pdo->prepare("UPDATE tblusers SET password = :password WHERE id = :id")) {
+                            // Bind parameters to prevent sql injection
+                            $updateStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+                            $updateStmt->bindParam(":password", $param_password, PDO::PARAM_STR);
+                            $param_id = $_SESSION["id"];
+                            $param_password = hash('sha256', $newPassword);
+                            $updateStmt->execute();
+                        }
+                        // Unset update statement
+                        unset($updateStmt);
+                    } else {
+                        $current_password_err = "Current password is incorrect.";
+                    }
+                }
+            }
+            // Unset read statement
+            unset($readStmt);
+        }
+    } else {
+        // Check if request's profile picture not empty
+        if (isset($_FILES["profilePic"])) {
+            $currentDir = realpath(dirname(__FILE__));
+            $image = $_FILES["profilePic"];
+            $fileName = $image["name"];
+            $tempPath =  $currentDir . $fileName;
+            $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
+
+            // Check if uploaded file is an image
+            $allowTypes = array('jpg', 'png', 'jpeg');
+            if (!in_array($fileType, $allowTypes)) {
+                $profile_pic_err = "Only .jpg, .jpeg, and .png is allowed.";
+            }
+
+            // Check uploaded image size
+            if ($image["size"] > 16777215) {
+                $profile_pic_err = "Image can't be larger than 16MB";
+            }
+
+            if (empty($profile_pic_err) && move_uploaded_file($image["tmp_name"],  $tempPath)) {
+                if ($updateStmt = $pdo->prepare("UPDATE tblusers SET profilePic = :profilePic WHERE id = :id")) {
+                    // Bind parameters to prevent sql injection
+                    $updateStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+                    $updateStmt->bindParam(":profilePic", $param_profile_pic, PDO::PARAM_STR);
+                    $param_id = $_SESSION["id"];
+                    $param_profile_pic = $fileName;
+                    $updateStmt->execute();
+                }
+                // Unset update statement
+                unset($updateStmt);
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -40,84 +182,52 @@ require_once "connect.php";
 <body>
 
     <div class="content">
-        <h2>Settings</h2>
+        <h2><?php echo $dbUsername ?>'s Settings</h2>
+        <!DOCTYPE html>
+        <html>
 
-        <?php
-  include('connect.php');
-  $id=$_SESSION["id"];
-  $query=mysqli_query($connect,"Select * from tblusers where id='$id'");
-  $row=mysqli_fetch_array($query);
-?>
-<!DOCTYPE html>
-<html>
-<head><title>Edit Page</title></head>
-<body>
-  <h2>Edit</h2>
-  <form method="POST" action="update.php?id=<?php echo $id; ?>">
-      <label>Email:</label><input type="text" value="<?php echo $row['email']; ?>" name="firstname">
-      <label>Password:</label><input type="text" value="<?php echo $row['password']; ?>" name="lastname">
-      <input type="submit" name="submit">
-      <a href="index.php">Back</a>
-  </form>
-</body>
-</html>
-        
-        <form action="upload.php" method="post" enctype="multipart/form-data">
-            Select image to upload:
-            <input type="file" name="fileToUpload" id="fileToUpload">
-            <input type="submit" value="Upload Image" name="submit">
-        
+        <head>
+            <title>Edit Page</title>
+        </head>
 
-        <?php
-            $target_dir = "uploads/";
-            $target_file = ($target_dir . basename($_FILES["fileToUpload"]["name"]));
-            $uploadOk = 1;
-            $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-
-            // Check if image file is a actual image or fake image
-            if(isset($_POST["submit"])) {
-            $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-            if($check !== false) {
-                echo "File is an image - " . $check["mime"] . ".";
-                $uploadOk = 1;
-            } else {
-                echo "File is not an image.";
-                $uploadOk = 0;
-            }
-            }
-
-            // Check if file already exists
-            if (file_exists($target_file)) {
-            echo "Sorry, file already exists.";
-            $uploadOk = 0;
-            }
-
-            // Check file size
-            if ($_FILES["fileToUpload"]["size"] > 500000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-            }
-
-            // Allow certain file formats
-            if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-            && $imageFileType != "gif" ) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            $uploadOk = 0;
-            }
-
-            // Check if $uploadOk is set to 0 by an error
-            if ($uploadOk == 0) {
-            echo "Sorry, your file was not uploaded.";
-            // if everything is ok, try to upload file
-            } else {
-            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
-            } else {
-                echo "Sorry, there was an error uploading your file.";
-            }
-            }
-            ?>
+        <body>
+            <div class="spacer"></div>
+            <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+                <div class="formGroup">
+                    <label class="form-label" for="profilePic">Profile Picture</label>
+                    <input type="file" class="form-control" name="profilePic" />
+                    <span class="invalid-feedback"><?php echo $profile_pic_err; ?></span>
+                </div>
             </form>
+            <div class="spacer"></div>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="formGroup">
+                    <label>Email</label>
+                    <input type="text" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $dbEmail; ?>">
+                    <span class="invalid-feedback"><?php echo $email_err; ?></span>
+                </div>
+                <div class="spacer"></div>
+                <div class="formGroup">
+                    <label>Current Password</label>
+                    <input type="password" name="currentPassword" class="form-control <?php echo (!empty($current_password_err)) ? 'is-invalid' : ''; ?>">
+                    <span class="invalid-feedback"><?php echo $current_password_err; ?></span>
+                </div>
+                <div class="spacer"></div>
+                <div class="formGroup">
+                    <label>New Password</label>
+                    <input type="password" name="newPassword" class="form-control <?php echo (!empty($new_password_err)) ? 'is-invalid' : ''; ?>">
+                    <span class="invalid-feedback"><?php echo $new_password_err; ?></span>
+                </div>
+                <div class="spacer"></div>
+                <center><button type="submit" class="btn btn-primary">Save</button></center>
+            </form>
+        </body>
+
+        </html>
+
+
+
+
     </div>
 </body>
 

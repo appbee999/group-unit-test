@@ -1,2 +1,2 @@
 # group-unit-test
-Please include your group members and their git account here
+Members: Hans Tan, Manu Dy, Gelo Gonzalez, Enrico Sy, Kirby Lee

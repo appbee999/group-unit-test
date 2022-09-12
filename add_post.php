@@ -44,7 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check if there is no error and move the file to temporary directory
     if (empty($postMessage_err) && empty($postImage_err) && (!isset($_FILES["postImage"]) || move_uploaded_file($image["tmp_name"],  $tempPath))) {
-        echo "printeed insert";
         // Sql statement to insert post details to database
         $insert = "INSERT INTO posts (postedBy, postUser, postTitle, postMsg,postImg) VALUES (:postedBy, :postUser, :postTitle, :postMsg,:postImg)";
         // Prepare insert statement

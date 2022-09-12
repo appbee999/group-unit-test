@@ -46,9 +46,16 @@ body .spacer {
 }
 
 .content {
-    margin-top: 3vh;
+    margin: 3vh 5vh;
 }
 
-.content h2 {
-    margin: 0vh 5vh;
+.material-symbols-outlined{
+    font-size: 48px;
 }
+
+.postButton {
+    position: absolute;
+    right: 32px;
+    bottom: 32px;
+}
+

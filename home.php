@@ -22,6 +22,16 @@ if ($currentHour > 5 && $currentHour < 12) {
 } else {
     $greeting = "Good evening, " . $_SESSION["firstName"];
 }
+
+// Sql statement to read posts
+$readStmt = $pdo->prepare("SELECT * FROM posts");
+
+if ($readStmt->execute()) {
+    $result = $readStmt->fetchAll();
+    print_r($result);
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -30,11 +40,12 @@ if ($currentHour > 5 && $currentHour < 12) {
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
-    <link rel="stylesheet" href="home.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="home.css">
     <header>
         <div class="title">
             <h2>Home Page</h2>
@@ -55,7 +66,16 @@ if ($currentHour > 5 && $currentHour < 12) {
         <h2><?php echo ($greeting); ?></h2>
         <div class="spacer"></div>
         <h2>Here are the recent posts made by other Xaverians</h2>
+        <div class="spacer"></div>
+
     </div>
+
+    <a class="btn btn-primary p-3 rounded-circle btn-l shadow-md postButton" type="button" href="add_post.php">
+        <span class="material-symbols-outlined">
+            add
+        </span>
+    </a>
+ 
 </body>
 
 </html>

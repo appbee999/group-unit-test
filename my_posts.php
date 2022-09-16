@@ -22,6 +22,19 @@ if ($currentHour > 5 && $currentHour < 12) {
 } else {
     $greeting = "Good evening, " . $_SESSION["firstName"];
 }
+
+// Sql statement to read user details
+$userReadStmt = $pdo->prepare("SELECT * FROM tblusers WHERE id = :id LIMIT 1");
+
+// Bind parameters
+$userReadStmt->bindParam(":id", $param_user_id, PDO::PARAM_STR);
+$param_user_id = $_SESSION["id"];
+
+// Set result variable when done fetching
+if ($userReadStmt->execute()) {
+    $user = array_values($userReadStmt->fetchAll())[0];
+}
+
 // Sql statement to read posts
 $readStmt = $pdo->prepare("SELECT * FROM posts WHERE postedBy = :id");
 
@@ -73,6 +86,14 @@ if ($readStmt->execute()) {
 <body>
     <div class="content">
         <div class="spacer"></div>
+
+        <h2><?php echo $greeting; ?></h2>
+        <?php
+        if (!empty($user["profilePic"])) {
+            echo '<img src="images/' . $user["profilePic"] .  '" width="100px" height="100px">';
+            echo '<div class="spacer"></div>';
+        }
+        ?>
         <h2>These are your recent posts</h2>
         <div class="spacer"></div>
 

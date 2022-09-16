@@ -84,11 +84,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             unset($readStmt);
         }
 
-        if (empty($email_err) && empty($current_password_err) && empty($new_password_err) && $_FILES["profilePic"]['size'] == 0) {
+        if (empty($email_err) && empty($current_password_err) && empty($new_password_err) && $_FILES["profilePic"]['size'] != 0) {
             $currentDir = realpath(dirname(__FILE__));
             $image = $_FILES["profilePic"];
             $fileName = $image["name"];
-            $tempPath =  $currentDir . $fileName;
+            $tempPath =  $currentDir . "\images\\" . baseName($fileName);
             $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
 
             // Check if uploaded file is an image
@@ -109,9 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $updateStmt->bindParam(":profilePic", $param_profile_pic, PDO::PARAM_STR);
                     $param_id = $_SESSION["id"];
                     $param_profile_pic = $fileName;
-                    if ($updateStmt->execute()) {
-                        echo "update work";
-                    }
+                    $updateStmt->execute();
                 }
                 // Unset update statement
                 unset($updateStmt);

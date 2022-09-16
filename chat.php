@@ -131,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message"]) && isset($_
                 foreach ($chatResults as $chat) {
                     $isSentByUser = $chat["sender"] == $_SESSION["id"];
                     $isSentByUserClass = $isSentByUser ? "text-bg-primary sender" : "text-bg-secondary receiver";
-                    echo '<div class="card mb-3 ' . $isSentByUserClass . '" style="max-width: 18rem;">';
+                    echo '<div class="card rounded-pill mb-3 ' . $isSentByUserClass . '" style="max-width: 18rem;">';
                     echo '<h6 class="message card-text">' . $chat["message"] . '</h6>';
                     echo '</div>';
                 }

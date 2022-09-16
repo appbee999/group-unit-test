@@ -9,20 +9,6 @@ if (!$_SESSION["isSignedIn"]) {
 
 require_once "connect.php";
 
-// Get time of day
-$pht = time() + 21600; // Adjust GMT to PHT time
-$currentHour = date('H', $pht);
-$greeting = '';
-
-// Create greeting message depending on the time of the day
-if ($currentHour > 5 && $currentHour < 12) {
-    $greeting = "Good morning, " . $_SESSION["firstName"];
-} elseif ($currentHour < 18) {
-    $greeting = "Good afternoon, " . $_SESSION["firstName"];
-} else {
-    $greeting = "Good evening, " . $_SESSION["firstName"];
-}
-
 // Sql statement to read user details
 $userReadStmt = $pdo->prepare("SELECT * FROM tblusers WHERE id = :id LIMIT 1");
 
@@ -87,13 +73,16 @@ if ($readStmt->execute()) {
     <div class="content">
         <div class="spacer"></div>
 
-        <h2><?php echo $greeting; ?></h2>
-        <?php
-        if (!empty($user["profilePic"])) {
-            echo '<img src="images/' . $user["profilePic"] .  '" width="100px" height="100px">';
-            echo '<div class="spacer"></div>';
-        }
-        ?>
+        <div class="d-flex flex-row" style="align-items:center;">
+            <?php
+            if (!empty($user["profilePic"])) {
+                echo '<img src="images/' . $user["profilePic"] .  '" class="rounded-circle" width="100px" height="100px">';
+            }
+            ?>
+
+            <h2 class="p-4"><?php echo $user["firstName"]." ". $user["lastName"]; ?></h2>
+        </div>
+        <div class="spacer"></div>
         <h2>These are your recent posts</h2>
         <div class="spacer"></div>
 

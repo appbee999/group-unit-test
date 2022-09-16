@@ -36,3 +36,41 @@ header {
 .links a:hover {
     color: white;
 }
+
+.content {
+    margin: 30px auto;
+    width: 80%;
+}
+
+.chatTitle {
+    margin: 1rem 0;
+}
+
+.chatContent {
+    display: block;
+    border-radius: 12px;
+}
+
+.message {
+    font-size: 16px;
+    padding: 8px 12px;
+}
+
+.sender {
+    clear: both;
+    float: right;
+    margin-top: 1rem;
+    margin-right: 2rem;
+}
+
+.receiver {
+    clear: both;
+    display: block;
+    float: left;
+    margin-top: 1rem;
+    margin-left: 2rem;
+}
+
+.chatForm {
+    clear: both;
+}

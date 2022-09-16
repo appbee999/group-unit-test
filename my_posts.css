@@ -52,20 +52,22 @@ body .spacer {
 
 .material-symbols-outlined {
     font-size: 48px;
-    padding: 0;
 }
 
 .postButton {
-    position: fixed;
+    position: absolute;
     right: 32px;
     bottom: 32px;
 }
 
 .post {
+    background-color: white;
+    border-radius: 12px;
     margin: 20px 0;
 }
 
 .post .postUser {
+
     padding: 25px 20px 5px 20px;
 }
 
@@ -75,4 +77,13 @@ body .spacer {
 
 .post .postMsg {
     padding: 0 20px 10px 20px;
+    font-size: 20px;
+}
+
+.post img {
+    display: block;
+    max-height: 600px;
+    max-width: 80%;
+    margin: 0 auto;
+    padding-bottom: 20px;
 }

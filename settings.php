@@ -84,6 +84,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             unset($readStmt);
         }
 
+        if (empty($email_err) && empty($current_password_err) && empty($new_password_err) && $_FILES["profilePic"]['size'] == 0) {
+            $currentDir = realpath(dirname(__FILE__));
+            $image = $_FILES["profilePic"];
+            $fileName = $image["name"];
+            $tempPath =  $currentDir . $fileName;
+            $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
+
+            // Check if uploaded file is an image
+            $allowTypes = array('jpg', 'png', 'jpeg');
+            if (!in_array($fileType, $allowTypes)) {
+                $profile_pic_err = "Only .jpg, .jpeg, and .png is allowed.";
+            }
+
+            // Check uploaded image size
+            if ($image["size"] > 16777215) {
+                $profile_pic_err = "Image can't be larger than 16MB";
+            }
+
+            if (empty($profile_pic_err) && move_uploaded_file($image["tmp_name"],  $tempPath)) {
+                if ($updateStmt = $pdo->prepare("UPDATE tblusers SET profilePic = :profilePic WHERE id = :id")) {
+                    // Bind parameters to prevent sql injection
+                    $updateStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+                    $updateStmt->bindParam(":profilePic", $param_profile_pic, PDO::PARAM_STR);
+                    $param_id = $_SESSION["id"];
+                    $param_profile_pic = $fileName;
+                    if ($updateStmt->execute()) {
+                        echo "update work";
+                    }
+                }
+                // Unset update statement
+                unset($updateStmt);
+            }
+        }
+
         // Check if current password is correct
         if (!empty($currentPassword) && !empty($newPassword) && empty($current_password_err) && empty($new_password_err)) {
             // Prepare read statement
@@ -116,39 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Unset read statement
             unset($readStmt);
         }
-    } else {
-        // Check if request's profile picture not empty
-        if (isset($_FILES["profilePic"])) {
-            $currentDir = realpath(dirname(__FILE__));
-            $image = $_FILES["profilePic"];
-            $fileName = $image["name"];
-            $tempPath =  $currentDir . $fileName;
-            $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
-
-            // Check if uploaded file is an image
-            $allowTypes = array('jpg', 'png', 'jpeg');
-            if (!in_array($fileType, $allowTypes)) {
-                $profile_pic_err = "Only .jpg, .jpeg, and .png is allowed.";
-            }
-
-            // Check uploaded image size
-            if ($image["size"] > 16777215) {
-                $profile_pic_err = "Image can't be larger than 16MB";
-            }
-
-            if (empty($profile_pic_err) && move_uploaded_file($image["tmp_name"],  $tempPath)) {
-                if ($updateStmt = $pdo->prepare("UPDATE tblusers SET profilePic = :profilePic WHERE id = :id")) {
-                    // Bind parameters to prevent sql injection
-                    $updateStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
-                    $updateStmt->bindParam(":profilePic", $param_profile_pic, PDO::PARAM_STR);
-                    $param_id = $_SESSION["id"];
-                    $param_profile_pic = $fileName;
-                    $updateStmt->execute();
-                }
-                // Unset update statement
-                unset($updateStmt);
-            }
-        }
     }
 }
 ?>
@@ -171,10 +172,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <div class="links">
             <a href="home.php">Home</a>
-            <a href="inbox.php">Inbox</a>
             <a href="chat.php">Chat</a>
+            <a href="my_posts.php">My Posts</a>
             <a href="settings.php">Settings</a>
-            <a href="logout.php">Logout</a>
+            <a href="logout.php" onclick="confirmLogout()">Logout</a>
+            <script>
+                function confirmLogout() {
+                    if (confirm("Confirm Logout")) {
+                        location.href = "logout.php"
+                    }
+                }
+            </script>
         </div>
     </header>
 </head>
@@ -198,9 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="file" class="form-control" name="profilePic" />
                     <span class="invalid-feedback"><?php echo $profile_pic_err; ?></span>
                 </div>
-            </form>
-            <div class="spacer"></div>
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="spacer"></div>
                 <div class="formGroup">
                     <label>Email</label>
                     <input type="text" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $dbEmail; ?>">

@@ -9,13 +9,16 @@ if (!$_SESSION["isSignedIn"]) {
 
 require_once "connect.php";
 
-$postTitle = $postMessage = $postMessage_err = $postImage_err = $fileName = "";
+$postTitle = $postTitle_err = $postMessage = $postMessage_err = $postImage_err = $fileName = "";
 
 // Check if submit button is pressed
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Set $postTitle and trim trailing spaces
+    // Validate post title
     $postTitle = trim($_POST["postTitle"]);
+    if (empty($postTitle)) {
+        $postTitle_err = "Post title cannot be empty.";
+    }
 
     // Validate post message
     $postMessage = trim($_POST["postMessage"]);
@@ -23,14 +26,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $postMessage_err = "Post message cannot be empty.";
     }
 
-    if (isset($_FILES["postImage"])) {
+    if ($_FILES["postImage"]['size'] != 0) {
         $currentDir = realpath(dirname(__FILE__));
         $image = $_FILES["postImage"];
         $fileName = $image["name"];
         $tempPath =  $currentDir . "\images\\" . baseName($fileName);
         $fileType = strtolower(pathinfo($tempPath, PATHINFO_EXTENSION));
 
-        // Check if uploaded file is an image
+        // Check if uploaded file  is an image
         $allowTypes = array('jpg', 'png', 'jpeg');
         if (!in_array($fileType, $allowTypes)) {
             $postImage_err = "Only .jpg, .jpeg, and .png is allowed.";
@@ -43,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Check if there is no error and move the file to temporary directory
-    if (empty($postMessage_err) && empty($postImage_err) && (!isset($_FILES["postImage"]) || move_uploaded_file($image["tmp_name"],  $tempPath))) {
+    if (empty($postTitle_err) && empty($postMessage_err) && empty($postImage_err) && ($_FILES["postImage"]['size'] == 0 || move_uploaded_file($image["tmp_name"],  $tempPath))) {
         // Sql statement to insert post details to database
         $insert = "INSERT INTO posts (postedBy, postUser, postTitle, postMsg,postImg) VALUES (:postedBy, :postUser, :postTitle, :postMsg,:postImg)";
         // Prepare insert statement
@@ -59,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $param_postUser =  $_SESSION["firstName"] . " " . $_SESSION["lastName"];
             $param_postTitle = $postTitle;
             $param_postMessage = $postMessage;
-            $param_postImage = $fileName;
+            $param_postImage = $_FILES["postImage"]['size'] == 0 ? null : $fileName;
 
             // Execute insert statement
             if ($insertStmt->execute()) {
@@ -88,25 +91,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
-        <div class="mb-3 formGroup">
-            <label for="postInput" class="form-label">Post Title</label>
-            <input type="text" name="postTitle" class="form-control <?php echo (!empty($postTitle_err)) ? 'is-invalid' : ''; ?>" id="postInput" value="<?php echo $postTitle; ?>" placeholder="Post Title">
-        </div>
-        <div class="mb-3 formGroup">
-            <label for="postInput" class="form-label">Post Message</label>
-            <input type="text" name="postMessage" class="form-control <?php echo (!empty($postMessage_err)) ? 'is-invalid' : ''; ?>" id="postInput" value="<?php echo $postMessage; ?>" placeholder="Post Message">
-            <span class="invalid-feedback"><?php echo $postMessage_err; ?></span>
-        </div>
+    <div class="content">
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+            <h2>Add Post</h2>
+            <div class="mb-3 formGroup">
+                <label for="postInput" class="form-label">Post Title</label>
+                <input type="text" name="postTitle" class="form-control <?php echo (!empty($postTitle_err)) ? 'is-invalid' : ''; ?>" id="postInput" value="<?php echo $postTitle; ?>" placeholder="Post Title">
+            </div>
+            <div class="mb-3 formGroup">
+                <label for="postInput" class="form-label">Post Message</label>
+                <input type="text" name="postMessage" class="form-control <?php echo (!empty($postMessage_err)) ? 'is-invalid' : ''; ?>" id="postInput" value="<?php echo $postMessage; ?>" placeholder="Post Message">
+                <span class="invalid-feedback"><?php echo $postMessage_err; ?></span>
+            </div>
 
-        <div class="formGroup">
-            <label class="form-label" for="postImage">Post Image</label>
-            <input type="file" class="form-control" name="postImage" />
-            <span class="invalid-feedback"><?php echo $postImage_err; ?></span>
-        </div>
+            <div class="formGroup">
+                <label class="form-label" for="postImage">Post Image</label>
+                <input type="file" class="form-control" name="postImage" />
+                <span class="invalid-feedback"><?php echo $postImage_err; ?></span>
+            </div>
 
-        <center><button type="submit" class="btn btn-primary">Post</button></center>
-    </form>
+            <center><button type="submit" class="btn btn-primary">Post</button></center>
+        </form>
+    </div>
 </body>
 
 </html>

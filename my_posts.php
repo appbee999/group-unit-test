@@ -22,9 +22,12 @@ if ($currentHour > 5 && $currentHour < 12) {
 } else {
     $greeting = "Good evening, " . $_SESSION["firstName"];
 }
-
 // Sql statement to read posts
-$readStmt = $pdo->prepare("SELECT * FROM posts");
+$readStmt = $pdo->prepare("SELECT * FROM posts WHERE postedBy = :id");
+
+// Bind parameters
+$readStmt->bindParam(":id", $param_id, PDO::PARAM_STR);
+$param_id = $_SESSION["id"];
 
 // Set result variable when done fetching
 if ($readStmt->execute()) {
@@ -70,19 +73,18 @@ if ($readStmt->execute()) {
 <body>
     <div class="content">
         <div class="spacer"></div>
-        <h2><?php echo $greeting; ?></h2>
-        <h2>Here are the recent posts made by other Xaverians</h2>
+        <h2>These are your recent posts</h2>
         <div class="spacer"></div>
 
         <?php
         foreach ($result as $post) {
-            echo "<div class='card post'>";
+            echo "<div class='post'>";
             echo "<h2 class='postUser'>" . $post["postUser"] .  "</h2>";
-            echo "<h2 class ='card-title postTitle'>" . $post["postTitle"] .  "</h2>";
-            echo "<p class='card-text postMsg'>" . $post["postMsg"] .  "</p>";
+            echo "<h2 class ='postTitle'>" . $post["postTitle"] .  "</h2>";
+            echo "<p class='postMsg'>" . $post["postMsg"] .  "</p>";
             echo "";
             if (!empty($post["postImg"])) {
-                echo '<img  src="images/' . $post["postImg"] .  '">';
+                echo '<img src="images/' . $post["postImg"] .  '">';
                 echo '<div class="spacer"></div>';
             }
 
@@ -94,7 +96,7 @@ if ($readStmt->execute()) {
     </div>
 
 
-    <a class="btn btn-primary p-3 btn-l shadow-md postButton" type="button" href="add_post.php">
+    <a class="btn btn-primary p-3 rounded-circle btn-l shadow-md postButton" type="button" href="add_post.php">
         <span class="material-symbols-outlined">
             add
         </span>

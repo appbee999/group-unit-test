@@ -1,7 +1,15 @@
-.formGroup{
-    margin-bottom: 1em;
-  }
-  
-  .formGroup label{
-    margin-bottom: 0.5em;
-  }
+.content {
+  width: 70%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.formGroup {
+  margin-bottom: 1em;
+}
+
+.formGroup label {
+  margin-bottom: 0.5em;
+}

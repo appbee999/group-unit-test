@@ -41,16 +41,16 @@ if ($readStmt->execute()) {
 
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <title>My Posts</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
     <link rel="stylesheet" href="home.css">
-    <header>
+    <header class="bg-primary">
         <div class="title">
-            <h2>Home Page</h2>
+            <h2>My Posts</h2>
         </div>
         <div class="links">
             <a href="home.php">Home</a>
@@ -80,7 +80,7 @@ if ($readStmt->execute()) {
             }
             ?>
 
-            <h2 class="p-4"><?php echo $user["firstName"]." ". $user["lastName"]; ?></h2>
+            <h2 class="<?php echo !empty($user["profilePic"]) ? 'p-4' : '' ?>"><?php echo $user["firstName"] . " " . $user["lastName"]; ?></h2>
         </div>
         <div class="spacer"></div>
         <h2>These are your recent posts</h2>
@@ -88,13 +88,13 @@ if ($readStmt->execute()) {
 
         <?php
         foreach ($result as $post) {
-            echo "<div class='post'>";
+            echo "<div class='card post'>";
             echo "<h2 class='postUser'>" . $post["postUser"] .  "</h2>";
-            echo "<h2 class ='postTitle'>" . $post["postTitle"] .  "</h2>";
-            echo "<p class='postMsg'>" . $post["postMsg"] .  "</p>";
+            echo "<h2 class ='card-title postTitle'>" . $post["postTitle"] .  "</h2>";
+            echo "<p class='card-text postMsg'>" . $post["postMsg"] .  "</p>";
             echo "";
             if (!empty($post["postImg"])) {
-                echo '<img src="images/' . $post["postImg"] .  '">';
+                echo '<img  src="images/' . $post["postImg"] .  '">';
                 echo '<div class="spacer"></div>';
             }
 
@@ -106,7 +106,7 @@ if ($readStmt->execute()) {
     </div>
 
 
-    <a class="btn btn-primary p-3 rounded-circle btn-l shadow-md postButton" type="button" href="add_post.php">
+    <a class="btn btn-primary p-3 btn-l shadow-md postButton" type="button" href="add_post.php">
         <span class="material-symbols-outlined">
             add
         </span>

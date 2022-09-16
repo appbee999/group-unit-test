@@ -24,7 +24,7 @@ if ($currentHour > 5 && $currentHour < 12) {
 }
 
 // Sql statement to read posts
-$readStmt = $pdo->prepare("SELECT * FROM posts");
+$readStmt = $pdo->prepare("SELECT * FROM posts ORDER BY created_at DESC");
 
 // Set result variable when done fetching
 if ($readStmt->execute()) {
@@ -46,7 +46,7 @@ if ($readStmt->execute()) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
     <link rel="stylesheet" href="home.css">
-    <header>
+    <header class="bg-primary">
         <div class="title">
             <h2>Home Page</h2>
         </div>

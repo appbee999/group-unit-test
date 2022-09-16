@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message"]) && isset($_
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <header>
+    <header class="bg-primary">
         <h2 class="title">Chat</h2>
         <div class="links">
             <a href="home.php">Home</a>
@@ -125,6 +125,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message"]) && isset($_
             </div>
         </form>
 
+
+        <br>
         <div class="chatContent">
             <?php
             if (!empty($chatResults)) {
@@ -137,20 +139,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["message"]) && isset($_
                 }
             }
             ?>
+            <?php if ($userReceiverID != "") {
+                echo '<form action="' . htmlspecialchars($_SERVER["PHP_SELF"]) . '" method="post">
+                     <div class="formGroup chatForm">
+                         <input type="hidden" name="receiverID" value="' . $userReceiverID . '">
+     
+                         <div class="input-group mb-3">
+                             <input type="text" class="form-control" name="message" placeholder="Send a message">
+                             <button class="material-symbols-outlined input-group-text" type="submit">
+                                 send
+                             </button>
+                         </div>
+     
+                     </div>
+                 </form>';
+            }
+            ?>
 
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="formGroup chatForm">
-                    <input type="hidden" name="receiverID" value="<?php echo $userReceiverID; ?>">
-
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="message" placeholder="Send a message">
-                        <button class="material-symbols-outlined input-group-text" type="submit">
-                            send
-                        </button>
-                    </div>
-
-                </div>
-            </form>
         </div>
     </div>
 </body>
